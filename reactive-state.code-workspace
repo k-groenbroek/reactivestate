@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			".venv": true,
+			"**/__pycache__": true,
+			"*.tmp": true,
+		},
+		"python.formatting.provider": "black",
+		"editor.formatOnSave": true,
+		"python.pythonPath": ".venv\\Scripts\\python.exe",
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Python: WIP",
+				"type": "python",
+				"request": "launch",
+				"program": "wip.py",
+				"console": "integratedTerminal"
+			}
+		]
+	}
+}

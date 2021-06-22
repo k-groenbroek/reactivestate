@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "reactivestate"
+version = "0.1.0"
+description = "Simple, scalable state management for Python."
+authors = ["K. Groenbroek <kasper.groenbroek@ortec.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Rx = "^3.2.0"
+
+[tool.poetry.dev-dependencies]
+black = "^21.5b2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
