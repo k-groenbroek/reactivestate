@@ -12,7 +12,6 @@
 		},
 		"python.formatting.provider": "black",
 		"editor.formatOnSave": true,
-		"python.pythonPath": ".venv\\Scripts\\python.exe",
 	},
 	"launch": {
 		"version": "0.2.0",
