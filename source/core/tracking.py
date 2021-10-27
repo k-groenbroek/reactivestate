@@ -1,7 +1,8 @@
 import threading
 from collections import deque
 
-from rx import Observable
+import rx
+import rx.operators as op
 
 
 class TrackingContextManager:
@@ -15,15 +16,24 @@ class TrackingContextManager:
     def __exit__(self, exc_type, exc_value, exc_tb):
         self.tracked_observables.pop()
 
-    def report_observed(self, obs: Observable):
+    def is_active(self):
+        return len(self.tracked_observables) > 0
+
+    def report_observed(self, obs: rx.Observable):
         try:
             self.tracked_observables[-1].add(obs)
         except IndexError:
             # Nothing is currently being tracked.
             pass
 
-    def get_observed(self) -> set[Observable]:
-        return self.tracked_observables[-1]
+    def get_observed(self) -> rx.Observable:
+        # TODO: wait till action end, filter on change?
+        dependencies = self.tracked_observables[-1]
+        if len(dependencies) == 0:
+            return None
+        obs = rx.combine_latest(*dependencies)
+        obs = obs[1:]
+        return obs
 
 
 local = threading.local()
@@ -32,7 +42,3 @@ local.tracking = TrackingContextManager()
 
 def tracking() -> TrackingContextManager:
     return local.tracking
-
-
-def report_observed(obs: Observable):
-    local.tracking.report_observed(obs)
