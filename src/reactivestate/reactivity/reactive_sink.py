@@ -1,7 +1,7 @@
 from typing import Callable
 
-from source.core.tracking import tracking
-from source.core.action import action
+from reactivestate.core.tracking import tracking
+from reactivestate.core.action import action
 
 
 class ReactiveSink:

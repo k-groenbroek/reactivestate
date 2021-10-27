@@ -1,6 +1,6 @@
 from rx.subject.behaviorsubject import BehaviorSubject
 
-from source.core.tracking import tracking
+from reactivestate.core.tracking import tracking
 
 
 DIRTY = object()
