@@ -2,7 +2,6 @@ import threading
 from collections import deque
 
 import rx
-import rx.operators as op
 
 
 class TrackingContextManager:
@@ -27,7 +26,6 @@ class TrackingContextManager:
             pass
 
     def get_observed(self) -> rx.Observable:
-        # TODO: wait till action end, filter on change?
         dependencies = self.tracked_observables[-1]
         if len(dependencies) == 0:
             return None

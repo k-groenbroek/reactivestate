@@ -1,4 +1,4 @@
-from rx.subject.behaviorsubject import BehaviorSubject
+from rx.subject.behaviorsubject import BehaviorSubject as RxBehaviorSubject
 
 from reactivestate.core.tracking import tracking
 
@@ -6,10 +6,10 @@ from reactivestate.core.tracking import tracking
 DIRTY = object()
 
 
-class ReactiveConductor:
+class Computed:
     def __init__(self, fn):
         self.fn = fn
-        self.obsvalue = BehaviorSubject(DIRTY)
+        self.obsvalue = RxBehaviorSubject(DIRTY)
         self.subscription = None
 
     def __set_name__(self, owner, name):
@@ -17,7 +17,7 @@ class ReactiveConductor:
 
     def __get__(self, obj, type=None):
         assert tracking().is_active(), (
-            f"ReactiveConductor cannot be accessed outside of reactive context. "
+            f"Computed prop cannot be accessed outside of reactive context. "
             f"Tried to access '{self.propname}'."
         )
         if self.obsvalue.value is DIRTY:
@@ -33,5 +33,5 @@ class ReactiveConductor:
         self.obsvalue.on_next(DIRTY)
 
 
-def reactive_conductor(fn):
-    return ReactiveConductor(fn)
+def computed(fn):
+    return Computed(fn)

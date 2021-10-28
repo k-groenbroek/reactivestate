@@ -4,7 +4,7 @@ from reactivestate.core.tracking import tracking
 from reactivestate.core.action import action
 
 
-class ReactiveSink:
+class Observer:
     def __init__(self, fn: Callable[[], None]):
         self.fn = fn
         self.subscription = None
@@ -15,7 +15,7 @@ class ReactiveSink:
             self.fn()
             obs = t.get_observed()
         assert obs is not None, (
-            f"ReactiveSink must have at least one dependency. "
+            f"Observer must have at least one dependency. "
             f"Nothing was observed while running '{self.fn.__name__}'."
         )
         self.subscription = obs.subscribe(lambda v: self._invalidate())
@@ -25,5 +25,5 @@ class ReactiveSink:
         action().report_dirty_sink(self)
 
 
-def reactive_sink(fn: Callable[[], None]) -> Callable[[], None]:
-    return ReactiveSink(fn)
+def observe(fn: Callable[[], None]) -> Callable[[], None]:
+    return Observer(fn)
