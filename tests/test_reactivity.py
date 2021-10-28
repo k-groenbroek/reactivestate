@@ -8,7 +8,6 @@ from reactivestate import (
 )
 
 
-
 @observable
 class MyStore:
     def __init__(self):
@@ -57,3 +56,18 @@ class TestReactivity:
         with action():
             store.a = 3
         mock.assert_not_called()
+
+    def test_nested_computed(self):
+        store = MyStore()
+        mock = MagicMock()
+        MyStore.d = computed(lambda self: f"{self.b} => {self.c}")
+
+        def depends_on_d():
+            mock(store.d)
+
+        observe(depends_on_d)
+        mock.assert_called_once_with("first => First")
+        mock.reset_mock()
+        with action():
+            store.b = "second"
+        mock.assert_called_once_with("second => Second")
