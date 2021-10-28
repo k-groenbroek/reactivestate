@@ -1,6 +1,6 @@
 # ReactiveState
 
-Simple, reactive state management for Python.
+Simple reactive state management for Python.
 
 ~~~shell
 pip install reactivestate
@@ -43,7 +43,7 @@ observe(print_text)
 [Output] "Counter = 1"
 ~~~
 
-Use actions to mutate state and trigger reactivity.
+Calling `observe` will run the given function and then rerun it when any of its dependencies change. Use actions to mutate state. 
 ~~~python
 with action():
     state.counter += 1
@@ -51,14 +51,17 @@ with action():
 [Output] "Counter = 2"
 ~~~
 
-When an action finishes, any affected computed 
+When an action finishes, any affected observers will rerun. If they depend on computeds, those are recalculated. Computeds that are not depended on, won't recalculate. The dependency tree is updated behind the scenes and all reactive calculations run synchronously. This makes for a unidirectional and very predictable dataflow. 
 
+In summary, actions mutate observable state. Computed properties react automatically to state changes, but only if they have to. Observers rerun when their dependencies change. They produce side effects like print, or update part of a user interface.
 
-state derivations (computed properties, observing functions) will rerun and the dependency tree is updated automatically. 
-
+<img src="assets/gist.png" width=600/>
 
 
 ## API
+
+### action
+Mutate observable state.
 
 ### observable
 Create observable state.
@@ -67,16 +70,14 @@ Create observable state.
 Add computed properties to observable state.
 
 ### observe
-Run a function that depends on observable state. It will observe its dependencies and rerun when they change.
+Run a function that depends on observable state. It will observe its dependencies and rerun when they change.   
 
-### action
-Mutate observable state.
 
 
 ## TODO
 
 First:
-* isolate: to suppress tracking inside observer.
+* untrack: to suppress tracking inside observer.
 * observe: should return disposer.
 * observable: support for add and delete attrs.
 * observable: should work like dataclass?
@@ -89,9 +90,8 @@ Later:
 
 ## Internals
 
-ReactiveState is heavily inspired by other reactive programming libraries. For a deeper understanding of the concepts, see: 
-* R Shiny's [reactive engine](https://shiny.rstudio.com/articles/execution-scheduling.html). 
-* Javascript's [MobX](https://mobx.js.org/the-gist-of-mobx.html).
+ReactiveState is heavily inspired by other reactive programming libraries. For a deeper understanding of the concepts, read: 
+* [Reactive engine behind R-Shiny](https://shiny.rstudio.com/articles/execution-scheduling.html). 
+* [The gist of MobX](https://mobx.js.org/the-gist-of-mobx.html).
 
-The internals of ReactiveState actually build on the lower level observable sequences from ReactiveX.
-* ReactiveX for Python [RxPy](https://rxpy.readthedocs.io/en/latest/)
+The internals of ReactiveState actually build on the lower level observable sequences from ReactiveX, see [RxPy](https://rxpy.readthedocs.io/en/latest/).
