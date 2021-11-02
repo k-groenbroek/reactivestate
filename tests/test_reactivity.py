@@ -57,7 +57,7 @@ class TestReactivity:
             store.a = 3
         mock.assert_not_called()
 
-    def test_nested_computed(self):
+    def test_dynamic_computed(self):
         store = MyStore()
         mock = MagicMock()
         MyStore.d = computed(lambda self: f"{self.b} => {self.c}")
