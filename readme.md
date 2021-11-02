@@ -76,12 +76,13 @@ Run a function that depends on observable state. It will observe its dependencie
 
 ## TODO
 
-First:
+First: 
 * untrack: to suppress tracking inside observer.
 * observe: should return disposer.
 * observable: support for add and delete attrs.
 * observable: should work like dataclass?
 * action: filter on change.
+    * Perhaps the values should be tuples of (signal, value), where signal is in [maybe_changed, ready] like in mobx.
 
 Later:
 * threading support, lock observable during action?

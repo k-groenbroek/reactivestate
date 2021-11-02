@@ -9,28 +9,34 @@ DIRTY = object()
 class Computed:
     def __init__(self, fn):
         self.fn = fn
-        self.obsvalue = RxBehaviorSubject(DIRTY)
-        self.subscription = None
 
     def __set_name__(self, owner, name):
-        self.propname = f"{owner.__name__}.{name}"
+        self.name = name
 
     def __get__(self, obj, type=None):
+        assert self.name is not None, "Computed prop must have a name"
         assert tracking().is_active(), (
             f"Computed prop cannot be accessed outside of reactive context. "
-            f"Tried to access '{self.propname}'."
+            f"Tried to access '{obj.__name__}.{self.name}'."
         )
-        if self.obsvalue.value is DIRTY:
+        obsvalue = obj.__dict__.get(self.name)
+        if obsvalue is None:
+            obsvalue = RxBehaviorSubject(DIRTY)
+            obj.__dict__[self.name] = obsvalue
+        if obsvalue.value is DIRTY:
             with tracking() as t:
-                self.obsvalue.on_next(self.fn(obj))
-                obs = t.get_observed()
-            self.subscription = obs.subscribe(lambda v: self._invalidate())
-            self.dirty = False
-        return self.obsvalue
+                obsvalue.on_next(self.fn(obj))
+                obsdependency = t.get_observed()
+            obsdependency[0].subscribe(
+                lambda v: obsvalue.on_next(DIRTY)
+            )  # Subscription is disposed of automatically.
+        return obsvalue
 
-    def _invalidate(self):
-        self.subscription.dispose()
-        self.obsvalue.on_next(DIRTY)
+    def __set__(self, obj, value):
+        raise RuntimeError(
+            f"Computed props are read-only. "
+            f"Tried to set '{obj.__name__}.{self.name}'."
+        )
 
 
 def computed(fn):
