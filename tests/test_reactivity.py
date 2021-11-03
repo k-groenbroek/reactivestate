@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock
+import pytest
 
 from reactivestate import (
     observable,
@@ -13,6 +14,10 @@ class MyStore:
     def __init__(self):
         self.a = 1
         self.b = "first"
+
+    @computed
+    def d(self):
+        return f"{self.b} => {self.c}"
 
     @computed
     def c(self):
@@ -57,10 +62,9 @@ class TestReactivity:
             store.a = 3
         mock.assert_not_called()
 
-    def test_dynamic_computed(self):
+    def test_nested_computed(self):
         store = MyStore()
         mock = MagicMock()
-        MyStore.d = computed(lambda self: f"{self.b} => {self.c}")
 
         def depends_on_d():
             mock(store.d)
@@ -71,3 +75,10 @@ class TestReactivity:
         with action():
             store.b = "second"
         mock.assert_called_once_with("second => Second")
+
+    def test_dynamic_computed_exception(self):
+        store = MyStore()
+        with pytest.raises(AssertionError):
+            MyStore.e = computed(lambda self: 1)
+            store.e
+        del MyStore.e

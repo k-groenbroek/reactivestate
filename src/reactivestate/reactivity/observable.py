@@ -9,23 +9,24 @@ T = TypeVar("T")
 
 
 def observable(cls: T) -> T:
-    class Observable(cls):
-        def __setattr__(self, name, value):
-            if name in self.__dict__:
-                assert action().is_active(), (
-                    f"Observable attributes can only be changed with actions. "
-                    f"Tried to change '{cls.__name__}.{name}'."
-                )
-                self.__dict__[name].on_next(value)
-            else:
-                self.__dict__[name] = RxBehaviorSubject(value)
+    def _setattr(self, name, value):
+        if name in self.__dict__:
+            assert action().is_active(), (
+                f"Observable attributes can only be changed with actions. "
+                f"Tried to change '{cls.__name__}.{name}'."
+            )
+            self.__dict__[name].on_next(value)
+        else:
+            self.__dict__[name] = RxBehaviorSubject(value)
 
-        def __getattribute__(self, name):
-            obj = super().__getattribute__(name)
-            if isinstance(obj, RxBehaviorSubject):
-                tracking().report_observed(obj)
-                return obj.value
-            else:
-                return obj
+    def _getattribute(self, name):
+        obj = super(cls, self).__getattribute__(name)
+        if isinstance(obj, RxBehaviorSubject):
+            tracking().report_observed(obj)
+            return obj.value
+        else:
+            return obj
 
-    return Observable
+    cls.__setattr__ = _setattr
+    cls.__getattribute__ = _getattribute
+    return cls
