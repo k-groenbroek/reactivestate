@@ -79,6 +79,6 @@ class TestReactivity:
     def test_dynamic_computed_exception(self):
         store = MyStore()
         with pytest.raises(AssertionError):
-            MyStore.e = computed(lambda self: 1)
-            store.e
+            MyStore.newprop = computed(lambda self: 1)
+            store.newprop
         del MyStore.e
