@@ -81,4 +81,4 @@ class TestReactivity:
         with pytest.raises(AssertionError):
             MyStore.newprop = computed(lambda self: 1)
             store.newprop
-        del MyStore.e
+        del MyStore.newprop
