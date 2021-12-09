@@ -1,7 +1,6 @@
 from typing import Callable
 
-from reactivestate.core.tracking import tracking
-from reactivestate.core.action import action
+from reactivestate.core.tracking import get_obs_dependency_changed, tracking
 
 
 class Observer:
@@ -12,14 +11,13 @@ class Observer:
     def __call__(self):
         with tracking() as t:
             self.fn()
-            obsdependency = t.get_observed()
-        assert obsdependency is not None, (
+            dependencies = t.get_dependencies()
+        assert len(dependencies) > 0, (
             f"Observer must have at least one dependency. "
             f"Nothing was observed while running '{self.fn.__name__}'."
         )
-        obsdependency.subscribe(
-            lambda v: action().report_dirty_sink(self)
-        )  # Subscription is disposed of automatically.
+        obs = get_obs_dependency_changed(dependencies)
+        obs.subscribe(lambda v: self())  # Subscription is disposed of automatically.
 
 
 def observe(fn: Callable[[], None]) -> Callable[[], None]:

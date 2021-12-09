@@ -81,6 +81,7 @@ First:
 * observe: should return disposer.
 * observable: support for add and delete attrs.
 * observable: should work like dataclass?
+* cache computed values, instead of checking if changed (like mobx).
 * action: filter on change.
     * Perhaps the values should be tuples of (signal, value), where signal is in [maybe_changed, ready] like in mobx.
 
@@ -95,4 +96,4 @@ ReactiveState is heavily inspired by other reactive programming libraries. For a
 * [Reactive engine behind R-Shiny](https://shiny.rstudio.com/articles/execution-scheduling.html). 
 * [The gist of MobX](https://mobx.js.org/the-gist-of-mobx.html).
 
-The internals of ReactiveState actually build on the lower level observable sequences from ReactiveX, see [RxPy](https://rxpy.readthedocs.io/en/latest/).
+The internals of ReactiveState build on the lower level observable sequences from ReactiveX, see [RxPy](https://rxpy.readthedocs.io/en/latest/).
