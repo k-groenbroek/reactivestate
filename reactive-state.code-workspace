@@ -10,6 +10,7 @@
 			"**/__pycache__": true,
 			".pytest_cache": true,
 			"*.tmp": true,
+			"dist/": true,
 		},
 		"python.formatting.provider": "black",
 		"editor.formatOnSave": true,
