@@ -3,7 +3,7 @@ import pytest
 
 from reactivestate import (
     observable,
-    observer,
+    observe,
     computed,
     action,
 )
@@ -32,7 +32,7 @@ class TestReactivity:
         def depends_on_a():
             mock(store.a)
 
-        observer(depends_on_a)
+        observe(depends_on_a)
         mock.assert_called_once_with(1)
         mock.reset_mock()
         with action():
@@ -50,7 +50,7 @@ class TestReactivity:
         def depends_on_c():
             mock(store.c)
 
-        observer(depends_on_c)
+        observe(depends_on_c)
         mock.assert_called_once_with("First")
         mock.reset_mock()
         with action():
@@ -69,7 +69,7 @@ class TestReactivity:
         def depends_on_d():
             mock(store.d)
 
-        observer(depends_on_d)
+        observe(depends_on_d)
         mock.assert_called_once_with("first => First")
         mock.reset_mock()
         with action():
