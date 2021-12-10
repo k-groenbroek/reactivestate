@@ -1,12 +1,19 @@
 from typing import TypeVar
-from rx.subject import BehaviorSubject as RxBehaviorSubject
 
-from reactivestate.core.signals import SignalValue, Signal
-from reactivestate.core.tracking import tracking
 from reactivestate.core.action import action
+from reactivestate.core.atom import ObservableAtom
 
 
 T = TypeVar("T")
+
+
+class ObservableValue(ObservableAtom):
+    def __init__(self, value):
+        super().__init__(value)
+        action().on_exit.connect(self._handle_action_exit)
+
+    def _handle_action_exit(self, *args):
+        self.ready()
 
 
 def observable(cls: T) -> T:
@@ -16,18 +23,14 @@ def observable(cls: T) -> T:
                 f"Observable attributes can only be changed with actions. "
                 f"Tried to change '{cls.__name__}.{name}'."
             )
-            obs = self.__dict__[name]
-            action().report_stale(obs)
-            obs.on_next(SignalValue(Signal.STALE, value))
+            self.__dict__[name].set(value)
         else:
-            sv = SignalValue(Signal.UNCHANGED, value)
-            self.__dict__[name] = RxBehaviorSubject(sv)
+            self.__dict__[name] = ObservableValue(value)
 
     def _getattribute(self, name):
         obj = super(cls, self).__getattribute__(name)
-        if isinstance(obj, RxBehaviorSubject):
-            tracking().report_observed(obj)
-            return obj.value.value
+        if isinstance(obj, ObservableAtom):
+            return obj.get()
         else:
             return obj
 

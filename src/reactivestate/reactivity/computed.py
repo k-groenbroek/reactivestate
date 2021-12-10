@@ -1,19 +1,48 @@
-import rx
-from rx.subject.behaviorsubject import BehaviorSubject as RxBehaviorSubject
-
-from reactivestate.core.tracking import (
-    get_obs_dependency_changed,
-    get_obs_dependency_stale,
-    tracking,
-)
-from reactivestate.core.signals import SignalValue, Signal
+from weakref import WeakSet
+from reactivestate.core.atom import ObservableAtom
+from reactivestate.core.tracking import tracking
 
 
-class Computed:
+class ComputedValue(ObservableAtom):
+    def __init__(self, fn):
+        super().__init__(None)
+        self.fn = fn
+        self.dependencies: WeakSet[ObservableAtom] = WeakSet()
+        self.changed_confirmed = False
+        self._compute()  # TODO: Wait until observed?
+
+    def _compute(self):
+        with tracking() as t:
+            newvalue = self.fn()
+            observed = t.get_observed()
+        ObservableAtom.on_stale.disconnect(self._handle_dep_stale)
+        ObservableAtom.on_ready.disconnect(self._handle_dep_ready)
+        self.dependencies.clear()
+        for d in observed:
+            ObservableAtom.on_stale.connect(self._handle_dep_stale, d)
+            ObservableAtom.on_ready.connect(self._handle_dep_ready, d)
+            self.dependencies.add(d)
+        self.set(newvalue)
+        self.ready()
+
+    def _handle_dep_stale(self, *args):
+        self.set(self.value)
+
+    def _handle_dep_ready(self, *args, changed: bool):
+        self.changed_confirmed |= changed
+        if any(d.stale for d in self.dependencies):
+            return
+        if self.changed_confirmed:
+            self._compute()
+        else:
+            self.ready()
+        self.changed_confirmed = False
+
+
+class ComputedDescriptor:
     def __init__(self, fn):
         self.fn = fn
         self.name = None
-        self.subscription = rx.never().subscribe()
 
     def __set_name__(self, owner, name):
         self.name = name
@@ -27,35 +56,9 @@ class Computed:
             f"Computed prop cannot be accessed outside of reactive context. "
             f"Tried to access '{obj.__class__.__name__}.{self.name}'."
         )
-        obs = obj.__dict__.get(self.name)
-        if obs is None:
-            obs = RxBehaviorSubject(SignalValue(Signal.STALE, None))
-            obj.__dict__[self.name] = obs
-            self.__compute__(obj)
-        return obs
-
-    def __compute__(self, obj):
-        obs = obj.__dict__[self.name]
-        oldvalue = obs.value.value
-        with tracking() as t:
-            newvalue = self.fn(obj)
-            dependencies = t.get_dependencies()
-        assert len(dependencies) > 0, (
-            f"Computed prop must have at least one dependency. "
-            f"Nothing was observed while running '{obj.__class__.__name__}.{self.name}'."
-        )
-        self.subscription.dispose()
-        self.subscription = get_obs_dependency_stale(dependencies).subscribe(
-            lambda v: obs.on_next(SignalValue(Signal.STALE, obs.value.value))
-        )
-        get_obs_dependency_changed(dependencies).subscribe(
-            lambda v: self.__compute__(obj)
-        )  # Subscription is disposed of automatically.
-        if newvalue == oldvalue:
-            # TODO: Comparer.
-            obs.on_next(SignalValue(Signal.UNCHANGED, newvalue))
-        else:
-            obs.on_next(SignalValue(Signal.CHANGED, newvalue))
+        if self.name not in obj.__dict__:
+            obj.__dict__[self.name] = ComputedValue(lambda: self.fn(obj))
+        return obj.__dict__[self.name]
 
     def __set__(self, obj, value):
         raise RuntimeError(
@@ -65,4 +68,4 @@ class Computed:
 
 
 def computed(fn):
-    return Computed(fn)
+    return ComputedDescriptor(fn)

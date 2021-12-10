@@ -6,7 +6,7 @@ authors = ["K. Groenbroek <kasper.groenbroek@ortec.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-Rx = "^3.2.0"
+blinker = "^1.4"
 
 [tool.poetry.dev-dependencies]
 black = "^21.9b0"
