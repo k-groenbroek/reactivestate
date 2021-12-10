@@ -30,14 +30,11 @@ class MyState:
 state = MyState()
 ~~~
 
-Define a function that uses the data.
+Define a function that uses the data and start observing.
 ~~~python
 def print_text():
     print(state.text)
-~~~
 
-Now we're ready to start observing. 
-~~~python
 observe(print_text)
 
 [Output] "Counter = 1"
@@ -51,9 +48,14 @@ with action():
 [Output] "Counter = 2"
 ~~~
 
-When an action finishes, any affected observers will rerun. If they depend on computeds, those are recalculated. Computeds that are not depended on, won't recalculate. The dependency tree is updated behind the scenes and all reactive calculations run synchronously. This makes for a unidirectional and very predictable dataflow. 
+When an action finishes, the state mutations are propagated throughout affected computeds and observers. Computeds and observers are state derivations. Computeds derive their values from state and other computeds. Observers don't produce values, but side effects instead. They can be used for example to redraw part of a UI. 
 
-In summary, actions mutate observable state. Computed properties react automatically to state changes, but only if they have to. Observers rerun when their dependencies change. They produce side effects like print, or update part of a user interface.
+These derivations are efficient: If a computed is not observed, or if its dependencies did not produce a new value, recalculation is skipped. Similarly, observers rerun only when their dependencies change. 
+
+
+
+
+In summary, actions mutate observable state. Computed properties react automatically to state changes, but only if they have to. Observers rerun when their dependencies change. The dependency tree is updated behind the scenes and all reactive calculations run synchronously. This makes for a unidirectional and very predictable dataflow. 
 
 <img src="assets/gist.png" width=600/>
 
@@ -80,10 +82,6 @@ First:
 * untrack: to suppress tracking inside observer.
 * observe: should return disposer.
 * observable: support for add and delete attrs.
-* observable: should work like dataclass?
-* cache computed values, instead of checking if changed (like mobx).
-* action: filter on change.
-    * Perhaps the values should be tuples of (signal, value), where signal is in [maybe_changed, ready] like in mobx.
 
 Later:
 * threading support, lock observable during action?
@@ -92,8 +90,6 @@ Later:
 
 ## Internals
 
-ReactiveState is heavily inspired by other reactive programming libraries. For a deeper understanding of the concepts, read: 
-* [Reactive engine behind R-Shiny](https://shiny.rstudio.com/articles/execution-scheduling.html). 
+ReactiveState is an implementation of Transparent Functional Reactive Programming for Python. For a deeper understanding of the concepts, read: 
 * [The gist of MobX](https://mobx.js.org/the-gist-of-mobx.html).
-
-The internals of ReactiveState build on the lower level observable sequences from ReactiveX, see [RxPy](https://rxpy.readthedocs.io/en/latest/).
+* [Reactive engine behind R-Shiny](https://shiny.rstudio.com/articles/execution-scheduling.html). 
