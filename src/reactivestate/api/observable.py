@@ -2,18 +2,10 @@ from typing import TypeVar
 
 from reactivestate.core.action import action
 from reactivestate.core.atom import ObservableAtom
+from reactivestate.core.observablevalue import ObservableValue
 
 
 T = TypeVar("T")
-
-
-class ObservableValue(ObservableAtom):
-    def __init__(self, value):
-        super().__init__(value)
-        action().on_exit.connect(self._handle_action_exit)
-
-    def _handle_action_exit(self, *args):
-        self.ready()
 
 
 def observable(cls: T) -> T:

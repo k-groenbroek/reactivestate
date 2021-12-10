@@ -33,7 +33,3 @@ class Observer:
         if self.change_confirmed:
             self.__call__()
             self.change_confirmed = False
-
-
-def observer(fn: Callable[[], None]) -> Callable[[], None]:
-    return Observer(fn)
