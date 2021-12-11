@@ -50,12 +50,9 @@ with action():
 
 When an action finishes, the state mutations are propagated throughout affected computeds and observers. Computeds and observers are state derivations. Computeds derive their values from state and other computeds. Observers don't produce values, but side effects instead. They can be used for example to redraw part of a UI. 
 
-These derivations are efficient: If a computed is not observed, or if its dependencies did not produce a new value, recalculation is skipped. Similarly, observers rerun only when their dependencies change. 
+These derivations are efficient: If a computed is not observed, or if its dependencies did not produce a new value, recalculation is skipped. Similarly, observers rerun only when their dependencies change. The dependency tree is updated behind the scenes and all reactive calculations run synchronously. 
 
-
-
-
-In summary, actions mutate observable state. Computed properties react automatically to state changes, but only if they have to. Observers rerun when their dependencies change. The dependency tree is updated behind the scenes and all reactive calculations run synchronously. This makes for a unidirectional and very predictable dataflow. 
+In summary, actions mutate observable state. Computed properties react automatically to state changes, but only if they have to. Observers rerun when their dependencies change. This allows you to model application state in an efficient and very predictable way.
 
 <img src="assets/gist.png" width=600/>
 
@@ -69,10 +66,10 @@ Mutate observable state.
 Create observable state.
 
 ### computed
-Add computed properties to observable state.
+Computed properties produce values that depend on observable state or other computed properties. It will observe its dependencies and recompute only when needed. 
 
 ### observe
-Run a function that depends on observable state. It will observe its dependencies and rerun when they change.   
+Observers produce side effects that depend on observable state or computed properties. It will observe its dependencies and rerun when they change.   
 
 
 
