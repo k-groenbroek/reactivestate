@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@mantine/core": "^3.6.1",
+    "@mantine/hooks": "^3.6.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "lock": {
+    "@mantine/core#^3.6.1": "@mantine/core@v3.6.1-22UJM4SIXXYaRQsTG86j",
+    "@mantine/hooks#^3.6.1": "@mantine/hooks@v3.6.1-igLWMK2bVGE1YMck1JAN",
+    "react#^17.0.2": "react@v17.0.1-yH0aYV1FOvoIPeKBbHxg",
+    "react-dom#^17.0.2": "react-dom@v17.0.1-oZ1BXZ5opQ1DbTh7nu9r"
+  }
+}
