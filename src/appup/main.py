@@ -1,17 +1,21 @@
 from starlette.applications import Starlette
-from starlette.responses import JSONResponse, HTMLResponse
 from starlette.staticfiles import StaticFiles
-from starlette.routing import Route, Mount
 import uvicorn
 
-from core.page import page, Tag
+from appup.core.page import page
 
 
 def app():
     app = Starlette()
-    app.mount("/components", StaticFiles(directory="server/components"))
+    app.mount("/components", StaticFiles(directory="src/appup/components"))
+
     with page(app, "/") as p:
-        p += "# My app"
+        p.markdown("# My App")
+        mylist = p.ul()
+        for i in range(10):
+            mylist.li().text(f"Item {i}")
+        p.button().text("click me")
+
     return app
 
 
@@ -22,5 +26,5 @@ if __name__ == "__main__":
         port=5000,
         factory=True,
         reload=True,
-        reload_dirs=["server"],
+        reload_dirs=["src/appup"],
     )

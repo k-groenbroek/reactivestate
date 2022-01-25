@@ -1,7 +1,5 @@
 import json
-import html
-from collections import deque
-from typing import Deque, List, Tuple
+from typing import List
 
 from starlette.applications import Starlette
 from starlette.responses import HTMLResponse
@@ -37,9 +35,9 @@ tagtemplate = """
 
 
 class Tag:
-    def __init__(self, name="", children=[]):
+    def __init__(self, name="", children=None):
         self.name = name
-        self.children: List[Tag] = children
+        self.children: List[Tag] = children if children else []
 
     def __add__(self, obj):
         if isinstance(obj, Tag):
@@ -58,6 +56,45 @@ class Tag:
                 children="\n".join(str(tag) for tag in self.children),
             )
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        return
+
+    def div(self):
+        tag = Tag("div")
+        self.children.append(tag)
+        return tag
+
+    def ul(self):
+        tag = Tag("ul")
+        self.children.append(tag)
+        return tag
+
+    def ol(self):
+        tag = Tag("ol")
+        self.children.append(tag)
+        return tag
+
+    def li(self):
+        tag = Tag("li")
+        self.children.append(tag)
+        return tag
+
+    def button(self):
+        tag = Tag("button")
+        self.children.append(tag)
+        return tag
+
+    def markdown(self, text):
+        tag = Tag("ReactMarkdown", [text])
+        self.children.append(tag)
+        return tag
+
+    def text(self, text):
+        self.children.append(text)
+
 
 class Page:
     imports = {
@@ -70,9 +107,6 @@ class Page:
 
     def __init__(self):
         self.root = Tag()
-
-    def __add__(self, obj):
-        self.root += obj
 
     def __str__(self):
         return pagetemplate.strip().format(
@@ -89,17 +123,13 @@ class PageContext:
 
     def __enter__(self):
         self.page = Page()
-        return self.page
+        return self.page.root
 
     def __exit__(self, exc_type, exc_value, exc_tb):
         async def handle_get(request):
             return HTMLResponse(str(self.page))
 
         self.app.add_route(self.url, handle_get)
-
-    @property
-    def activepage(self):
-        return self.pagestack[-1]
 
 
 def page(app: Starlette, url: str):

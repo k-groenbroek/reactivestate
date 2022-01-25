@@ -27,7 +27,7 @@
 				"name": "Python: server",
 				"type": "python",
 				"request": "launch",
-				"program": "server/main.py",
+				"program": "src/appup/main.py",
 				"console": "integratedTerminal",
 			}
 		]
