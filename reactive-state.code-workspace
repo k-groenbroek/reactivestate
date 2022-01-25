@@ -20,4 +20,16 @@
 		"python.testing.unittestEnabled": false,
 		"python.testing.pytestEnabled": true,
 	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Python: server",
+				"type": "python",
+				"request": "launch",
+				"program": "server/main.py",
+				"console": "integratedTerminal",
+			}
+		]
+	},
 }
