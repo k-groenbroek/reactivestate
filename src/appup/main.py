@@ -1,21 +1,25 @@
 from starlette.applications import Starlette
+from starlette.routing import Route
+from starlette.requests import Request
+from starlette.responses import Response
 from starlette.staticfiles import StaticFiles
 import uvicorn
 
 from appup.core.page import page
+from appup.core.mdx import compile
+
+
+def handle_mdx(request: Request):
+    mdxpath = f"src/appup/ui/{request.path_params['mdxfile']}"
+    content = compile(mdxpath)
+    response = Response(content, media_type="text/javascript")
+    return response
 
 
 def app():
     app = Starlette()
-    app.mount("/components", StaticFiles(directory="src/appup/components"))
-
-    with page(app, "/") as p:
-        p.markdown("# My App")
-        mylist = p.ul()
-        for i in range(10):
-            mylist.li().text(f"Item {i}")
-        p.button().text("click me")
-
+    app.add_route("/mdx/{mdxfile:path}", handle_mdx)
+    page(app, "/", "app.mdx")
     return app
 
 
