@@ -2,4 +2,4 @@
 **/__pycache__
 *.tmp
 dist/
-**/.snowpack
+**/node_modules
