@@ -9,8 +9,11 @@ from appup.core.page import page
 from appup.core.mdx import compile
 
 
+mdxdir = "src/appup/ui/"
+
+
 def handle_mdx(request: Request):
-    mdxpath = f"src/appup/ui/{request.path_params['mdxfile']}"
+    mdxpath = mdxdir + request.path_params["mdxfile"]
     content = compile(mdxpath)
     response = Response(content, media_type="text/javascript")
     return response
